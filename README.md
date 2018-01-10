@@ -1,1 +1,1 @@
-"# console-user-block-wia-yii2-user" 
+use console command to block user wia yii2-user

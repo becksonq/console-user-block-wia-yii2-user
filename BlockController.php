@@ -57,13 +57,13 @@ class BlockController extends Controller
      */
     public function actionBlock( $id )
     {
-        $user = $this->_findModel( $id );
+        $user = $this->findModel( $id );
         $event = $this->getUserEvent( $user );
 
         /**
          * Если пользователь подтвержден, выходим
          */
-        if ( $user->_getIsConfirmed() ) {
+        if ( $user->getIsConfirmed() ) {
             $this->stdout( 'User confirmed' . PHP_EOL, Console::FG_BLUE );
             return;
         }
@@ -71,7 +71,7 @@ class BlockController extends Controller
         /**
          * Если пользователь уже заблокирован, выходим
          */
-        if ( $user->_getIsBlocked() ) {
+        if ( $user->getIsBlocked() ) {
             $this->stdout( 'User already blocked' . PHP_EOL, Console::FG_BLUE );
             return;
         }
@@ -107,7 +107,7 @@ class BlockController extends Controller
             /**
              * Если пользователь подтвержден, выходим
              */
-            if ( $value->_getIsConfirmed() ) {
+            if ( $value->getIsConfirmed() ) {
                 $this->stdout( 'User confirmed' . PHP_EOL, Console::FG_BLUE );
                 return;
             }
@@ -115,7 +115,7 @@ class BlockController extends Controller
             /**
              * Если пользователь уже заблокирован, выходим
              */
-            if ( $value->_getIsBlocked() ) {
+            if ( $value->getIsBlocked() ) {
                 $this->stdout( 'User already blocked' . PHP_EOL, Console::FG_BLUE );
                 return;
             }
@@ -155,7 +155,7 @@ class BlockController extends Controller
      * @return User the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function _findModel( $id )
+    protected function findModel( $id )
     {
         $user = $this->finder->findUserById( $id );
         if ( $user === null ) {
@@ -168,7 +168,7 @@ class BlockController extends Controller
     /**
      * @return bool Whether the user is confirmed or not.
      */
-    protected function _getIsConfirmed()
+    protected function getIsConfirmed()
     {
         return $this->confirmed_at != null;
     }
@@ -176,9 +176,8 @@ class BlockController extends Controller
     /**
      * @return bool Whether the user is blocked or not.
      */
-    protected function _getIsBlocked()
+    protected function getIsBlocked()
     {
         return $this->blocked_at != null;
     }
-
 }

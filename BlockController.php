@@ -57,13 +57,13 @@ class BlockController extends Controller
      */
     public function actionBlock( $id )
     {
-        $user = $this->findModel( $id );
+        $user = $this->_findModel( $id );
         $event = $this->getUserEvent( $user );
 
         /**
          * Если пользователь подтвержден, выходим
          */
-        if ( $user->getIsConfirmed() ) {
+        if ( $user->_getIsConfirmed() ) {
             $this->stdout( 'User confirmed' . PHP_EOL, Console::FG_BLUE );
             return;
         }
@@ -71,7 +71,7 @@ class BlockController extends Controller
         /**
          * Если пользователь уже заблокирован, выходим
          */
-        if ( $user->getIsBlocked() ) {
+        if ( $user->_getIsBlocked() ) {
             $this->stdout( 'User already blocked' . PHP_EOL, Console::FG_BLUE );
             return;
         }
@@ -99,7 +99,7 @@ class BlockController extends Controller
      */
     public function actionBatchBlock()
     {
-        $users = $this->findUnconfirmedUsers();
+        $users = $this->_findUnconfirmedUsers();
 
         foreach ( $users as $value ) {
             $event = $this->getUserEvent( $value );
@@ -107,7 +107,7 @@ class BlockController extends Controller
             /**
              * Если пользователь подтвержден, выходим
              */
-            if ( $value->getIsConfirmed() ) {
+            if ( $value->_getIsConfirmed() ) {
                 $this->stdout( 'User confirmed' . PHP_EOL, Console::FG_BLUE );
                 return;
             }
@@ -115,7 +115,7 @@ class BlockController extends Controller
             /**
              * Если пользователь уже заблокирован, выходим
              */
-            if ( $value->getIsBlocked() ) {
+            if ( $value->_getIsBlocked() ) {
                 $this->stdout( 'User already blocked' . PHP_EOL, Console::FG_BLUE );
                 return;
             }
@@ -140,7 +140,7 @@ class BlockController extends Controller
     /**
      * @return array|\yii\db\ActiveRecord[]
      */
-    protected function findUnconfirmedUsers()
+    protected function _findUnconfirmedUsers()
     {
         $notConfirmedUsers = User::find()->where( [ 'confirmed_at' => null ] )->all();
         return $notConfirmedUsers;
@@ -155,7 +155,7 @@ class BlockController extends Controller
      * @return User the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel( $id )
+    protected function _findModel( $id )
     {
         $user = $this->finder->findUserById( $id );
         if ( $user === null ) {
@@ -168,7 +168,7 @@ class BlockController extends Controller
     /**
      * @return bool Whether the user is confirmed or not.
      */
-    protected function getIsConfirmed()
+    protected function _getIsConfirmed()
     {
         return $this->confirmed_at != null;
     }
@@ -176,7 +176,7 @@ class BlockController extends Controller
     /**
      * @return bool Whether the user is blocked or not.
      */
-    protected function getIsBlocked()
+    protected function _getIsBlocked()
     {
         return $this->blocked_at != null;
     }

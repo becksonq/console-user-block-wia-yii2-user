@@ -52,7 +52,7 @@ class BlockController extends Controller
     /**
      * Blocks the user.
      *
-     * @command ./yii user-block/block <id>
+     * @command ./yii block/block <id>
      * @param $id integer
      */
     public function actionBlock( $id )
@@ -64,7 +64,7 @@ class BlockController extends Controller
          * Если пользователь подтвержден, выходим
          */
         if ( $user->getIsConfirmed() ) {
-            $this->stdout( 'User confirmed', Console::FG_BLUE );
+            $this->stdout( 'User confirmed' . PHP_EOL, Console::FG_BLUE );
             return;
         }
 
@@ -72,7 +72,7 @@ class BlockController extends Controller
          * Если пользователь уже заблокирован, выходим
          */
         if ( $user->getIsBlocked() ) {
-            $this->stdout( 'User already blocked', Console::FG_BLUE );
+            $this->stdout( 'User already blocked' . PHP_EOL, Console::FG_BLUE );
             return;
         }
 
@@ -84,12 +84,66 @@ class BlockController extends Controller
             $this->trigger( AdminController::EVENT_BEFORE_BLOCK, $event );
             $user->block();
             $this->trigger( AdminController::EVENT_AFTER_BLOCK, $event );
-            $this->stdout( 'User has been blocked', Console::FG_GREEN );
+            $this->stdout( 'User has been blocked' . PHP_EOL, Console::FG_GREEN );
         }
         else {
-            $this->stdout( 'User not blocked', Console::FG_RED );
+            $this->stdout( 'User not blocked' . PHP_EOL, Console::FG_RED );
             return;
         }
+    }
+
+    /**
+     * Блокировка пользователей
+     *
+     * * @command ./yii block/batch-block
+     */
+    public function actionBatchBlock()
+    {
+        $users = $this->findUnconfirmedUsers();
+
+        foreach ( $users as $value ) {
+            $event = $this->getUserEvent( $value );
+
+            /**
+             * Если пользователь подтвержден, выходим
+             */
+            if ( $value->getIsConfirmed() ) {
+                $this->stdout( 'User confirmed' . PHP_EOL, Console::FG_BLUE );
+                return;
+            }
+
+            /**
+             * Если пользователь уже заблокирован, выходим
+             */
+            if ( $value->getIsBlocked() ) {
+                $this->stdout( 'User already blocked' . PHP_EOL, Console::FG_BLUE );
+                return;
+            }
+
+            /**
+             * Если текущее время < времени для блокирования, то выходим
+             * Если текущее время > времени для блокирования, блокируем юзера
+             */
+            if ( time() > $value->created_at + $this->days ) {
+                $this->trigger( AdminController::EVENT_BEFORE_BLOCK, $event );
+                $value->block();
+                $this->trigger( AdminController::EVENT_AFTER_BLOCK, $event );
+                $this->stdout( 'User has been blocked' . PHP_EOL, Console::FG_GREEN );
+            }
+            else {
+                $this->stdout( 'User not blocked' . PHP_EOL, Console::FG_RED );
+                return;
+            }
+        }
+    }
+
+    /**
+     * @return array|\yii\db\ActiveRecord[]
+     */
+    protected function findUnconfirmedUsers()
+    {
+        $notConfirmedUsers = User::find()->where( [ 'confirmed_at' => null ] )->all();
+        return $notConfirmedUsers;
     }
 
     /**
